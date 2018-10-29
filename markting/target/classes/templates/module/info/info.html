@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header">
+	<link rel="stylesheet" th:href="@{/ajax/libs/bootstrap-fileinput-master/css/fileinput.min.css}"/>
+</head>
+<script th:src="@{/ajax/libs/bootstrap-fileinput-master/js/fileinput.min.js}"></script>
+<script th:src="@{/ajax/libs/bootstrap-fileinput-master/js/locales/zh.js}"></script>
+<body class="gray-bg">
+	<div class="container-div">
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-success" onclick="$.operate.add()"> <i
+				class="fa fa-plus"></i> 添加
+			</a> <a class="btn btn-primary btn-edit disabled"
+				onclick="$.operate.edit()"> <i class="fa fa-edit"></i> 修改
+			</a> <a class="btn btn-danger btn-del btn-del disabled"
+				onclick="$.operate.removeAll()"> <i class="fa fa-remove"></i> 删除
+			</a> 
+			<a class="btn btn-warning" id="importExc" onclick="importExc()">
+				<i class="fa fa-file-excel-o" id="importExc"></i> 导入
+			</a>
+			<!-- <div class="btn btn-blank" style="max-width: 188px;"> 
+				<input type="file"  id="upload" accept="*.xls">
+			</div>
+			 -->
+
+			
+		</div>
+
+	<div>
+			<form id="role-form">
+				<div class="select-list" style="background-color:#fff;" >
+					<ul>
+						<li>公司名称：<input type="text" name="companyName" style="background: #FFE;" />
+						</li>
+						<li>公司电话：<input type="text" name="companyContactPhone" style="background: #FFE;"/>
+						</li>
+						<li>有无重复：<input type="text" name="isDuplicate" style="background: #FFE;"/>
+						</li>
+						<li>次序列号：<input type="text" name="serialNumber" style="background: #FFE;"/>
+						</li>
+						<li class="select-time"><label>创建时间： </label> <input
+							type="text" class="time-input" id="startTime" placeholder="开始时间"
+							name="params[beginTime]" style="background: #FFE;"/> <span>-</span> <input type="text"
+							class="time-input" id="endTime" placeholder="结束时间"
+							name="params[endTime]" style="background: #FFE;"/></li>
+						<li><a class="btn btn-primary btn-rounded btn-sm"
+							onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm"
+							onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+		
+	</div>
+	<div th:include="include :: footer"></div>
+	
+	
+	<script th:inline="javascript">
+	
+		var prefix = ctx + "module/info";
+
+		$(function() {
+			var options = {
+				url : prefix + "/list",
+				createUrl : prefix + "/add",
+				updateUrl : prefix + "/edit/{id}",
+				removeUrl : prefix + "/remove",
+				columns : [
+						{
+							checkbox : true
+						},
+						{
+							field : 'companyId',
+							title : 'id'
+						},
+						{
+							field : 'companyName',
+							title : '公司名'
+						},
+						{
+							field : 'companyContactName',
+							title : '联系人'
+						},
+						{
+							field : 'companyType',
+							title : '行业'
+						},
+						{
+							field : 'companyAddress',
+							title : '公司地址'
+						},
+						{
+							field : 'companyContactPhone',
+							title : '联系电话'
+						},
+						{
+							field : 'serialNumber',
+							title : '批次序列号'
+						},
+						{
+							field : 'createdDate',
+							title : '创建时间'
+						},
+						{
+							field : 'updatedDate',
+							title : '更新时间'
+						},
+						{
+							field : 'isDuplicate',
+							title : '无/重复(0/1)'
+						},
+
+						{
+							title : '操作',
+							align : 'center',
+							formatter : function(value, row, index) {
+								var actions = [];
+								actions
+										.push('<a class="btn btn-success btn-xs '
+												+ '" href="#" onclick="$.operate.edit(\''
+												+ row.companyId
+												+ '\')"><i class="fa fa-edit"></i>编辑</a> ');
+								actions
+										.push('<a class="btn btn-danger btn-xs '
+												+ '" href="#" onclick="$.operate.remove(\''
+												+ row.companyId
+												+ '\')"><i class="fa fa-remove"></i>删除</a>');
+								return actions.join('');
+							}
+						} ]
+			};
+			$.table.init(options);
+		});
+
+		
+		
+		initUpload("excelFile", ctx + "module/info/upload");
+	    function initUpload(ctrlName, uploadUrl) {
+	        var control = $('#' + ctrlName);
+	        control.fileinput({
+	            language: 'zh', //设置语言
+	            uploadUrl: uploadUrl, //上传的地址
+	            uploadAsync: true, //默认异步上传
+	            showCaption: true,//是否显示标题
+	            showUpload: true, //是否显示上传按钮
+	            browseClass: "btn btn-primary", //按钮样式
+	            allowedFileExtensions: ["xls", "xlsx"], //接收的文件后缀
+	            maxFileCount: 10,//最大上传文件数限制
+	            previewFileIcon: '<i class="glyphicon glyphicon-file"></i>',
+	            showPreview: true, //是否显示预览
+	            previewFileIconSettings: {
+	                'docx': '<i ass="fa fa-file-word-o text-primary"></i>',
+	                'xlsx': '<i class="fa fa-file-excel-o text-success"></i>',
+	                'xls': '<i class="fa fa-file-excel-o text-success"></i>',
+	                'pptx': '<i class="fa fa-file-powerpoint-o text-danger"></i>',
+	                'jpg': '<i class="fa fa-file-photo-o text-warning"></i>',
+	                'pdf': '<i class="fa fa-file-archive-o text-muted"></i>',
+	                'zip': '<i class="fa fa-file-archive-o text-muted"></i>',
+	            },
+	            uploadExtraData: function () {
+	                var extraValue = "test";
+	                return {"excelType": extraValue};
+	            }
+	        });
+	    }
+	    $("#excelFile").on("fileuploaded", function (event, data, previewId, index) {
+	        console.log(data);
+	        if(data.response.success == true)
+	        {
+	            alert(data.files[index].name + "上传成功!");
+	        //关闭
+	            $(".close").click();
+	        }
+	        else{
+	            alert(data.files[index].name + "上传失败!" + data.response.message);
+	        //重置
+	        $("#excelFile").fileinput("clear");
+	        $("#excelFile").fileinput("reset");
+	        $('#excelFile').fileinput('refresh');
+	        $('#excelFile').fileinput('enable');
+	        }
+	    });
+	    
+	    
+	    function importExc(){
+	    	var url = ctx + 'module/info/import'
+	    	window.location.href = url;
+	    }
+	</script>
+</body>
+</html>

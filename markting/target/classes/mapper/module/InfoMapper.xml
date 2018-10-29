@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mukitech.web.mapper.InfoMapper">
+    
+    <resultMap type="Info" id="InfoResult">
+        <result property="companyId"    column="company_id"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="companyContactName"    column="company_contact_name"    />
+        <result property="companyType"    column="company_type"    />
+        <result property="companyAddress"    column="company_address"    />
+        <result property="companyContactPhone"    column="company_contact_phone"    />
+        <result property="createdDate"    column="created_date"    />
+        <result property="updatedDate"    column="updated_date"    />
+        <result property="isDuplicate"    column="is_duplicate"    />
+        <result property="serialNumber"    column="serial_number"    />
+    </resultMap>
+	
+	<sql id="selectInfoVo">
+        select company_id, company_name, company_contact_name, company_type, company_address, company_contact_phone, created_date, updated_date, is_duplicate, serial_number from market_info
+    </sql>
+	
+    <select id="selectInfoList" parameterType="Info" resultMap="InfoResult">
+        <include refid="selectInfoVo"/>
+        <where>  
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+             <if test="companyName != null  and companyName != '' "> and company_name = #{companyName}</if>
+             <if test="companyContactName != null  and companyContactName != '' "> and company_contact_name = #{companyContactName}</if>
+             <if test="companyType != null  and companyType != '' "> and company_type = #{companyType}</if>
+             <if test="companyAddress != null  and companyAddress != '' "> and company_address = #{companyAddress}</if>
+             <if test="companyContactPhone != null  and companyContactPhone != '' "> and company_contact_phone = #{companyContactPhone}</if>
+             <if test="createdDate != null "> and created_date = #{createdDate}</if>
+             <if test="updatedDate != null "> and updated_date = #{updatedDate}</if>
+             <if test="isDuplicate != null  and isDuplicate != '' "> and is_duplicate = #{isDuplicate}</if>
+             <if test="serialNumber != null  and serialNumber != '' "> and serial_number = #{serialNumber}</if>
+         </where>
+    </select>
+    
+    <select id="selectInfoById" parameterType="Long" resultMap="InfoResult">
+        <include refid="selectInfoVo"/>
+        where company_id = #{companyId}
+    </select>
+        
+    <insert id="insertInfo" parameterType="Info">
+        insert into market_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="companyId != null  ">company_id,</if>
+			<if test="companyName != null  and companyName != ''  ">company_name,</if>
+			<if test="companyContactName != null  and companyContactName != ''  ">company_contact_name,</if>
+			<if test="companyType != null  and companyType != ''  ">company_type,</if>
+			<if test="companyAddress != null  and companyAddress != ''  ">company_address,</if>
+			<if test="companyContactPhone != null  and companyContactPhone != ''  ">company_contact_phone,</if>
+			<if test="createdDate != null  ">created_date,</if>
+			<if test="updatedDate != null  ">updated_date,</if>
+			<if test="isDuplicate != null  and isDuplicate != ''  ">is_duplicate,</if>
+			<if test="serialNumber != null  and serialNumber != ''  ">serial_number,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="companyId != null  ">#{companyId},</if>
+			<if test="companyName != null  and companyName != ''  ">#{companyName},</if>
+			<if test="companyContactName != null  and companyContactName != ''  ">#{companyContactName},</if>
+			<if test="companyType != null  and companyType != ''  ">#{companyType},</if>
+			<if test="companyAddress != null  and companyAddress != ''  ">#{companyAddress},</if>
+			<if test="companyContactPhone != null  and companyContactPhone != ''  ">#{companyContactPhone},</if>
+			<if test="createdDate != null  ">#{createdDate},</if>
+			<if test="updatedDate != null  ">#{updatedDate},</if>
+			<if test="isDuplicate != null  and isDuplicate != ''  ">#{isDuplicate},</if>
+			<if test="serialNumber != null  and serialNumber != ''  ">#{serialNumber},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateInfo" parameterType="Info">
+        update market_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyName != null  and companyName != ''  ">company_name = #{companyName},</if>
+            <if test="companyContactName != null  and companyContactName != ''  ">company_contact_name = #{companyContactName},</if>
+            <if test="companyType != null  and companyType != ''  ">company_type = #{companyType},</if>
+            <if test="companyAddress != null  and companyAddress != ''  ">company_address = #{companyAddress},</if>
+            <if test="companyContactPhone != null  and companyContactPhone != ''  ">company_contact_phone = #{companyContactPhone},</if>
+            <if test="createdDate != null  ">created_date = #{createdDate},</if>
+            <if test="updatedDate != null  ">updated_date = #{updatedDate},</if>
+            <if test="isDuplicate != null  and isDuplicate != ''  ">is_duplicate = #{isDuplicate},</if>
+            <if test="serialNumber != null  and serialNumber != ''  ">serial_number = #{serialNumber},</if>
+        </trim>
+        where company_id = #{companyId}
+    </update>
+
+	<delete id="deleteInfoById" parameterType="Long">
+        delete from market_info where company_id = #{companyId}
+    </delete>
+	
+    <delete id="deleteInfoByIds" parameterType="String">
+        delete from market_info where company_id in 
+        <foreach item="companyId" collection="array" open="(" separator="," close=")">
+            #{companyId}
+        </foreach>
+    </delete>
+    
+    <select id="selectInfoListByPhone" parameterType="String" resultMap="InfoResult">
+    	select company_id,company_contact_phone from market_info where company_contact_phone =#{companyContactPhone}
+    </select>
+    
+    <select id="numOfPhone" parameterType="String" resultType="Integer">
+    	select count(1) from market_info where company_contact_phone =#{companyContactPhone}
+    </select>
+    
+</mapper>
